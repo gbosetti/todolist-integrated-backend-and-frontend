@@ -12,8 +12,6 @@ import { HttpClientModule }    from '@angular/common/http';
 import { EditItemComponent } from './edit-item/edit-item.component';
 import { ApiService } from './_services/api.service';
 import { AuthService } from './_services/auth/auth.service';
-import { CanActivateGuard } from './_guards/can-activate.guard';
-
 
 @NgModule({
   declarations: [
@@ -30,7 +28,7 @@ import { CanActivateGuard } from './_guards/can-activate.guard';
     ReactiveFormsModule,
     HttpClientModule
   ],
-  providers: [ ApiService, AuthService, CanActivateGuard ],
+  providers: [ ApiService, AuthService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
