@@ -21,8 +21,8 @@ export class LoginComponent implements OnInit {
 		
 		this.url = environment.backendUrl + "/customusers/login";
 		this.loginForm = fb.group({
-		  	username: ['admin', Validators.required],
-		  	password: ['nimda', Validators.required]
+		  	username: ['', Validators.required],
+		  	password: ['', Validators.required]
 		});
 		this.auth.logOut();
 	}
