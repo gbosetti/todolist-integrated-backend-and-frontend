@@ -1,0 +1,50 @@
+function crearItem(desc){
+	cy.get("a").click();
+	cy.get("input").first().type(desc);
+	cy.get("button[type='submit']").click();
+	cy.url().should("include", "/items");
+}
+function borrarItem(desc){
+	cy.contains(desc).parent().find(".fa-trash-o").click();
+	cy.url().should("include", "/items");
+}
+
+
+describe("First functionality to test", function(){
+
+	it("Task one to test", function(){
+
+		//Visitar el sitio
+		cy.visit("http://localhost:3000");
+
+		//Login con usuario 1
+		cy.get("input").first().type('admin');
+		cy.get("input").eq(1).type('nimda');
+		cy.get("button").click();
+		cy.url().should("include", "/items");
+
+		//Contar los items previamente creados
+		cy.wait(1000);
+		var previousTasks = (Cypress.$("li"))? Cypress.$("li").length : 0;  	//It always returns 3
+		//var previousTasks = (Cypress.$("ul").childNodes.length)? Cypress.$("ul").childNodes.length : 0;  	//It always returns 0
+		//var previousTasks = cy.get('.list-group-item').its('length'); 		//It always returns [Object]
+		
+		cy.log("Previous number of tasks: " + previousTasks);
+		cy.wait(1000);
+
+		//Crear una nueva tarea llamada “comprar cuadernos”
+		crearItem("Comprar cuadernos");
+
+		//Crear una nueva tarea llamada “comprar pendrives”
+		crearItem("Comprar pendrives");
+
+		//Borrar la tarea “comprar pendrives”
+		borrarItem("Comprar cuadernos");
+
+		//Verificar la cantidad de tareas
+		cy.wait(1000);
+		cy.get('.list-group-item').its('length').should('eq', (previousTasks + 1));
+
+	})
+});
+
