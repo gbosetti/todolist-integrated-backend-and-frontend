@@ -19,11 +19,11 @@ describe("First functionality to test", function(){
 		cy.route({
 			method: 'POST',
 			url: '**/items',
-			response: function(params){
-				Cypress.$("body")[0].ownerDocument.defaultView.console.log("*****");
-				Cypress.$("body")[0].ownerDocument.defaultView.console.log(params.item); //UNDEFINED
-				items.push(params);
-				return items;
+			response: items,
+			onRequest: (xhr) => {
+				items.push(xhr.request.body);
+				Cypress.$("body")[0].ownerDocument.defaultView.console.log(xhr);
+				expect(true).to.equal(true);
 			}
 		});
 		cy.route({
@@ -31,6 +31,16 @@ describe("First functionality to test", function(){
 			url: '**/items',
 			response: items,
 			delay: 1000
+		});
+		cy.route({
+			method: 'DELETE',
+			url: '**/items/*',
+			response: items,
+			onRequest: (xhr) => {
+				Cypress.$("body")[0].ownerDocument.defaultView.console.log(xhr);
+				items = items.filter(obj => obj.name !== xhr.request.body.name);
+				expect(true).to.equal(true);
+			}
 		});
 
 
@@ -46,14 +56,10 @@ describe("First functionality to test", function(){
 		cy.url().should("include", "/items");
 
 		//Contar los items previamente creados
-		cy.wait(1000);
-		var previousTasks = (Cypress.$("li"))? Cypress.$("li").length : 0;  	//It always returns 3
+		//var previousTasks = (Cypress.$("li"))? Cypress.$("li").length : 0;  	//It always returns 3
 		//var previousTasks = (Cypress.$("ul").childNodes.length)? Cypress.$("ul").childNodes.length : 0;  	//It always returns 0
 		//var previousTasks = cy.get('.list-group-item').its('length'); 		//It always returns [Object]
 		
-		cy.log("Previous number of tasks: " + previousTasks);
-		cy.wait(1000);
-
 		//Crear una nueva tarea llamada “comprar cuadernos”
 		crearItem("Comprar cuadernos");
 
@@ -64,8 +70,8 @@ describe("First functionality to test", function(){
 		borrarItem("Comprar cuadernos");
 
 		//Verificar la cantidad de tareas
-		cy.wait(1000);
-		cy.get('.list-group-item').its('length').should('eq', (previousTasks + 1));
+		cy.wait(2000);
+		cy.get('.list-group-item').its('length').should('eq', 1);
 
 	})
 });
