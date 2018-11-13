@@ -14,6 +14,28 @@ describe("First functionality to test", function(){
 
 	it("Task one to test", function(){
 
+		var items = []
+		cy.server();
+		cy.route({
+			method: 'POST',
+			url: '**/items',
+			response: function(params){
+				Cypress.$("body")[0].ownerDocument.defaultView.console.log("*****");
+				Cypress.$("body")[0].ownerDocument.defaultView.console.log(params.item); //UNDEFINED
+				items.push(params);
+				return items;
+			}
+		});
+		cy.route({
+			method: 'GET',
+			url: '**/items',
+			response: items,
+			delay: 1000
+		});
+
+
+		///////////////////// Si se borra lo anterior, funciona con el backend
+
 		//Visitar el sitio
 		cy.visit("http://localhost:3000");
 
