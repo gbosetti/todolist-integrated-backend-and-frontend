@@ -12,8 +12,7 @@ function crearItem(desc){
 function borrarItem(desc){
 	console.log("** Deleting item " + desc);
 	cy.contains(desc).parent().find(".fa-trash-o").click();
-	//cy.wait(2000);
-	console.log()
+	cy.wait(2000);
 	cy.url().should("include", "/items");
 }
 
@@ -37,30 +36,21 @@ describe("First functionality to test", function(){
 		cy.route({
 			method: 'GET',
 			url: '**/items',
-			response: function(){
-				console.log("GETTING", items);
-				return items
-			},
-			delay: 1000,
-			onRequest: (xhr) => {
-				//console.log("GET-REQUESTED ITEMS:", items);
-				expect(true).to.equal(true);
-			},
-			onResponse: (xhr) => {
-				xhr.response.body = items;
-				console.log(JSON.stringify(items));
-				//xhr.xhr.responseText = JSON.stringify(items);
-				console.log(xhr);
-				expect(true).to.equal(true);
-			}
+			response: items
 		});
 		cy.route({
 			method: 'DELETE',
 			url: '**/items/*',
 			onRequest: (xhr) => {
 				var id = xhr.url.split("/").pop();
-				items = items.filter(obj => obj.id != id);
-				console.log("DELETED ITEMS", items);
+
+				for (var i = items.length - 1; i >= 0; i--) {
+					if(items[i].id == id){
+						items.splice(i, 1);
+						break;
+					}
+				}
+				//items = items.filter(obj => obj.id != id);
 				expect(true).to.equal(true);
 			}
 		});
@@ -77,11 +67,6 @@ describe("First functionality to test", function(){
 		cy.get("button").click();
 		cy.url().should("include", "/items");
 
-		//Contar los items previamente creados
-		//var previousTasks = (Cypress.$("li"))? Cypress.$("li").length : 0;  	//It always returns 3
-		//var previousTasks = (Cypress.$("ul").childNodes.length)? Cypress.$("ul").childNodes.length : 0;  	//It always returns 0
-		//var previousTasks = cy.get('.list-group-item').its('length'); 		//It always returns [Object]
-		
 		//Crear una nueva tarea llamada “comprar cuadernos”
 		crearItem("Comprar galletitas");
 
@@ -93,7 +78,7 @@ describe("First functionality to test", function(){
 
 		//Verificar la cantidad de tareas
 		//cy.get('.list-group-item').its('length').should('eq', 1);
-
+		cy.get('.list-group-item').should('have.length', 1);
 	})
 });
 
