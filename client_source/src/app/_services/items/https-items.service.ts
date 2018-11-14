@@ -34,7 +34,9 @@ export class HttpsItemsService extends HttpItemsService{
 
 			this.http.get<Item[]>(this.url, this.getHeadersWith(this.getCurrentToken())).subscribe(response => {
 
+				console.log("-- response from the app: ", response);
 			  	var items = response.map((item) => new Item(item.name, item.id));
+			  	console.log("-- processed response from the app: ", items);
 			  	resolve(items);
 			});
 		});

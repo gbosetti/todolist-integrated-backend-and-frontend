@@ -1,44 +1,66 @@
+var console = Cypress.$("body")[0].ownerDocument.defaultView.console;
+var items = [];
+
 function crearItem(desc){
+	console.log("** Creating item " + desc);
 	cy.get("a").click();
 	cy.get("input").first().type(desc);
 	cy.get("button[type='submit']").click();
 	cy.url().should("include", "/items");
+	cy.wait(2000); //To see the changes in the view
 }
 function borrarItem(desc){
+	console.log("** Deleting item " + desc);
 	cy.contains(desc).parent().find(".fa-trash-o").click();
+	//cy.wait(2000);
+	console.log()
 	cy.url().should("include", "/items");
 }
+
 
 
 describe("First functionality to test", function(){
 
 	it("Task one to test", function(){
 
-		var items = []
 		cy.server();
 		cy.route({
 			method: 'POST',
 			url: '**/items',
 			response: items,
 			onRequest: (xhr) => {
-				items.push(xhr.request.body);
-				Cypress.$("body")[0].ownerDocument.defaultView.console.log(xhr);
+				var id = Date.now();
+				items.push({"id": id, "name": xhr.request.body.name, "_id": id});
 				expect(true).to.equal(true);
 			}
 		});
 		cy.route({
 			method: 'GET',
 			url: '**/items',
-			response: items,
-			delay: 1000
+			response: function(){
+				console.log("GETTING", items);
+				return items
+			},
+			delay: 1000,
+			onRequest: (xhr) => {
+				//console.log("GET-REQUESTED ITEMS:", items);
+				expect(true).to.equal(true);
+			},
+			onResponse: (xhr) => {
+				xhr.response.body = items;
+				console.log(JSON.stringify(items));
+				//xhr.xhr.responseText = JSON.stringify(items);
+				console.log(xhr);
+				expect(true).to.equal(true);
+			}
 		});
 		cy.route({
 			method: 'DELETE',
 			url: '**/items/*',
-			response: items,
 			onRequest: (xhr) => {
-				Cypress.$("body")[0].ownerDocument.defaultView.console.log(xhr);
-				items = items.filter(obj => obj.name !== xhr.request.body.name);
+				var id = xhr.url.split("/").pop();
+				items = items.filter(obj => obj.id != id);
+				console.log("DELETED ITEMS", items);
 				expect(true).to.equal(true);
 			}
 		});
@@ -61,17 +83,16 @@ describe("First functionality to test", function(){
 		//var previousTasks = cy.get('.list-group-item').its('length'); 		//It always returns [Object]
 		
 		//Crear una nueva tarea llamada “comprar cuadernos”
-		crearItem("Comprar cuadernos");
+		crearItem("Comprar galletitas");
 
 		//Crear una nueva tarea llamada “comprar pendrives”
-		crearItem("Comprar pendrives");
+		crearItem("Comprar picadillo");
 
 		//Borrar la tarea “comprar pendrives”
-		borrarItem("Comprar cuadernos");
+		borrarItem("Comprar picadillo");
 
 		//Verificar la cantidad de tareas
-		cy.wait(2000);
-		cy.get('.list-group-item').its('length').should('eq', 1);
+		//cy.get('.list-group-item').its('length').should('eq', 1);
 
 	})
 });
