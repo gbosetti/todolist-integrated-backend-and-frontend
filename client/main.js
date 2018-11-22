@@ -424,9 +424,7 @@ var HttpsItemsService = /** @class */ (function (_super) {
         var _this = this;
         return new Promise(function (resolve) {
             _this.http.get(_this.url, _this.getHeadersWith(_this.getCurrentToken())).subscribe(function (response) {
-                console.log("-- response from the app: ", response);
                 var items = response.map(function (item) { return new _model_Item__WEBPACK_IMPORTED_MODULE_3__["Item"](item.name, item.id); });
-                console.log("-- processed response from the app: ", items);
                 resolve(items);
             });
         });
